@@ -46,30 +46,31 @@ Go to **Tools → Partition Scheme** in the Arduino IDE and pick one with a larg
 
 ## Serial Commands
 
-| Command | Description |
-|---|---|
-| `help` | List all commands |
-| `wifi` | Scan WiFi and print results |
-| `wifi sort rssi\|ssid` | Sort last WiFi scan by RSSI or SSID |
-| `wifi filter open` | Show only open (unencrypted) networks |
-| `wifi filter ssid <text>` | Show networks whose SSID contains `<text>` |
-| `wifi search <text>` | Alias for SSID filtering |
-| `bt` | Scan Bluetooth Classic and print results |
-| `bt sort name\|rssi` | Sort last BT scan by name or RSSI |
-| `bt filter addr <text>` | Show BT devices whose address contains `<text>` |
-| `ble` | Scan BLE and print results |
-| `ble sort rssi\|name` | Sort last BLE scan by RSSI or name |
-| `ble filter name <text>` | Show BLE devices whose name contains `<text>` |
-| `connect <ssid> [password]` | Connect the ESP32 to a WiFi network as a station |
-| `disconnect` | Disconnect from the WiFi station connection |
-| `status` | Show current station connection info (SSID, IP, gateway, DNS) |
-| `ping` | Test internet reachability (TCP to `8.8.8.8:53`) |
-| `save <wifi\|bt\|ble\|all> <csv\|json>` | Export scan results over Serial (`all` only supports `json`) |
-| `interval <seconds>` | Set the periodic scan interval (minimum 5s) |
-| `scan start [wifi\|bt\|ble\|all]` | Start periodic scanning — defaults to `all` if no type given |
-| `scan stop` | Stop periodic scanning |
+| Command                                 | Description                                                   |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `help`                                  | List all commands                                             |
+| `wifi`                                  | Scan WiFi and print results                                   |
+| `wifi sort rssi\|ssid`                  | Sort last WiFi scan by RSSI or SSID                           |
+| `wifi filter open`                      | Show only open (unencrypted) networks                         |
+| `wifi filter ssid <text>`               | Show networks whose SSID contains `<text>`                    |
+| `wifi search <text>`                    | Alias for SSID filtering                                      |
+| `bt`                                    | Scan Bluetooth Classic and print results                      |
+| `bt sort name\|rssi`                    | Sort last BT scan by name or RSSI                             |
+| `bt filter addr <text>`                 | Show BT devices whose address contains `<text>`               |
+| `ble`                                   | Scan BLE and print results                                    |
+| `ble sort rssi\|name`                   | Sort last BLE scan by RSSI or name                            |
+| `ble filter name <text>`                | Show BLE devices whose name contains `<text>`                 |
+| `connect <ssid> [password]`             | Connect the ESP32 to a WiFi network as a station              |
+| `disconnect`                            | Disconnect from the WiFi station connection                   |
+| `status`                                | Show current station connection info (SSID, IP, gateway, DNS) |
+| `ping`                                  | Test internet reachability (TCP to `8.8.8.8:53`)              |
+| `save <wifi\|bt\|ble\|all> <csv\|json>` | Export scan results over Serial (`all` only supports `json`)  |
+| `interval <seconds>`                    | Set the periodic scan interval (minimum 5s)                   |
+| `scan start [wifi\|bt\|ble\|all]`       | Start periodic scanning — defaults to `all` if no type given  |
+| `scan stop`                             | Stop periodic scanning                                        |
 
 **Examples:**
+
 ```
 wifi sort rssi
 ble filter name iPhone
@@ -90,14 +91,14 @@ Navigate to `http://192.168.4.1` after connecting to the ESP32's AP. The dashboa
 
 ### API Endpoints
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/` | GET | Web dashboard (HTML) |
-| `/api/scan?type=wifi\|bt\|ble` | GET | Trigger a scan for the given type (blocks until complete) |
-| `/api/wifi` | GET | Last WiFi scan results (JSON) |
-| `/api/bt` | GET | Last Bluetooth Classic scan results (JSON) |
-| `/api/ble` | GET | Last BLE scan results (JSON) |
-| `/api/status` | GET | Current WiFi station connection status (JSON) |
+| Endpoint                       | Method | Description                                               |
+| ------------------------------ | ------ | --------------------------------------------------------- |
+| `/`                            | GET    | Web dashboard (HTML)                                      |
+| `/api/scan?type=wifi\|bt\|ble` | GET    | Trigger a scan for the given type (blocks until complete) |
+| `/api/wifi`                    | GET    | Last WiFi scan results (JSON)                             |
+| `/api/bt`                      | GET    | Last Bluetooth Classic scan results (JSON)                |
+| `/api/ble`                     | GET    | Last BLE scan results (JSON)                              |
+| `/api/status`                  | GET    | Current WiFi station connection status (JSON)             |
 
 ## Known Limitations
 
@@ -105,7 +106,3 @@ Navigate to `http://192.168.4.1` after connecting to the ESP32's AP. The dashboa
 - The periodic scan interval (`interval <seconds>`) is global — all radios selected via `scan start` share the same interval.
 - SSIDs or connect passwords containing spaces aren't supported by the serial command parser (it splits on whitespace).
 - Combining WiFi + Bluetooth Classic + BLE + async web server produces a large binary; a non-default partition scheme is required (see **Flashing Notes**).
-
-## License
-
-Add your preferred license here (e.g. MIT).
