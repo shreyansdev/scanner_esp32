@@ -58,6 +58,7 @@ bool scanInProgress = false;        // prevents overlapping manual scans
 bool periodicScanEnabled = false;
 unsigned long periodicInterval = 30000;   // default 30 sec
 unsigned long lastScanMillis = 0;
+String periodicScanType = "all";    // "wifi" | "bt" | "ble" | "all" - what periodic scanning covers
 
 // ---------- WiFi connection state ----------
 bool staConnected = false;
@@ -246,14 +247,30 @@ void performBLEScan() {
     pBLEScan->clearResults();
 }
 
-// ---------- Master scan function (WiFi+BT+BLE) ----------
-void fullScan() {
+// ---------- Master scan function ----------
+// Runs whichever radio(s) periodicScanType selects ("wifi", "bt", "ble", or
+// "all"), and prints the results table for each one immediately after that
+// radio's scan finishes. Previously this always scanned everything but never
+// printed WiFi/BT/BLE results tables, so nothing visibly showed up except the
+// live per-device lines BT/BLE print during discovery.
+void runPeriodicScan() {
     if (scanInProgress) return;
     scanInProgress = true;
-    Serial.println("=== Starting full scan cycle ===");
-    performWiFiScan();
-    performBTScan();
-    performBLEScan();
+    Serial.println("=== Starting scan cycle (" + periodicScanType + ") ===");
+
+    if (periodicScanType == "wifi" || periodicScanType == "all") {
+        performWiFiScan();
+        printWiFiResults();
+    }
+    if (periodicScanType == "bt" || periodicScanType == "all") {
+        performBTScan();
+        printBTResults();
+    }
+    if (periodicScanType == "ble" || periodicScanType == "all") {
+        performBLEScan();
+        printBLEResults();
+    }
+
     Serial.println("=== Scan complete ===");
     scanInProgress = false;
 }
@@ -667,7 +684,8 @@ void processCommand(String cmdLine) {
                        "  ping\n"
                        "  save <wifi|bt|ble|all> <csv|json>\n"
                        "  interval <seconds>\n"
-                       "  scan start|stop\n");
+                       "  scan start [wifi|bt|ble|all]  (default: all)\n"
+                       "  scan stop\n");
     }
     else if (cmd == "wifi") {
         // optional subcommands
@@ -793,9 +811,16 @@ void processCommand(String cmdLine) {
     }
     else if (cmd == "scan" && p >= 2) {
         if (parts[1] == "start") {
-            periodicScanEnabled = true;
-            lastScanMillis = 0; // trigger immediately
-            Serial.println("Periodic scanning started.");
+            String type = (p >= 3) ? parts[2] : "all";
+            type.toLowerCase();
+            if (type != "wifi" && type != "bt" && type != "ble" && type != "all") {
+                Serial.println("Invalid scan type. Use: scan start [wifi|bt|ble|all]");
+            } else {
+                periodicScanType = type;
+                periodicScanEnabled = true;
+                lastScanMillis = 0; // trigger immediately
+                Serial.printf("Periodic scanning started (type: %s).\n", periodicScanType.c_str());
+            }
         } else if (parts[1] == "stop") {
             periodicScanEnabled = false;
             Serial.println("Periodic scanning stopped.");
@@ -830,7 +855,7 @@ void loop() {
     // Periodic scanning
     if (periodicScanEnabled && !scanInProgress) {
         if (millis() - lastScanMillis >= periodicInterval) {
-            fullScan();
+            runPeriodicScan();
             lastScanMillis = millis();
         }
     }
